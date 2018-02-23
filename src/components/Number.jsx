@@ -3,9 +3,7 @@ import PropTypes from 'prop-types'
 
 class Number extends PureComponent {
   handleClick = () => {
-    if (this.props.clickable) {
-      this.props.onClick(this.props.id)
-    }
+    this.props.onClick(this.props.id)
   }
   // PureComponent implements shouldComponentUpdate with a shallow prop and state comparison
   componentWillUpdate() {
@@ -14,7 +12,7 @@ class Number extends PureComponent {
   render() {
     return (
       <div
-        className={`number ${this.props.clickable ? '' : 'disabled'}`}
+        className={`number ${this.props.active ? '' : 'disabled'}`}
         onClick={this.handleClick}
       >
         {this.props.value}
@@ -28,7 +26,7 @@ Number.propTypes = {
     PropTypes.string,
     PropTypes.number
   ]),
-  clickable: PropTypes.bool,
+  active: PropTypes.bool,
   id: PropTypes.number,
   onClick: PropTypes.func
 }

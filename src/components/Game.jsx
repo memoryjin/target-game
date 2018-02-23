@@ -28,15 +28,15 @@ const randomSelect = (arr, size) => {
 const colors = {
   new: 'lightblue',
   playing: 'deepskyblue',
-  won: 'lightgreen',
-  lost: 'lightcoral'
+  over: 'lightgreen'
 }
 
 class Game extends Component {
   state = {
-    gameStatus: 'new', // new, playing, won, lost
+    gameStatus: 'new', // new, playing, over
     remainingSeconds: this.props.initialSeconds,
-    selectIds: []
+    selectIds: [],
+    score: 0
   }
 
   numbers = Array
@@ -66,7 +66,7 @@ class Game extends Component {
           const newRemainingSeconds = prevState.remainingSeconds - 1
           if (newRemainingSeconds === 0) {
             clearInterval(this.timer)
-            return {gameStatus: 'lost', remainingSeconds: 0}
+            return {gameStatus: 'over', remainingSeconds: 0}
           }
           return {remainingSeconds: newRemainingSeconds}
         })
@@ -79,28 +79,38 @@ class Game extends Component {
       if (prevState.gameStatus !== 'playing') {
         return null
       }
-      const newSelectIds = [...prevState.selectIds, numberIdx]
+      const newSelectIds = prevState.selectIds.includes(numberIdx)
+        ? prevState.selectIds.filter(idx => idx !== numberIdx)
+        : [...prevState.selectIds, numberIdx]
       return {
-        selectIds: newSelectIds,
-        gameStatus: this.caculateGameStatus(newSelectIds)
+        selectIds: newSelectIds
       }
     }, () => {
-      console.log(this.state.gameStatus)
-      if (this.state.gameStatus !== 'playing') {
-        clearInterval(this.timer)
+      const { selectIds } = this.state
+      if (selectIds.length === this.props.answerSize) {
+        const sum = selectIds.reduce((acc, cur) => {
+          return acc + this.numbers[cur]
+        }, 0)
+        if (sum === this.target) {
+          this.next()
+        } else {
+          this.setState({selectIds: []})
+        }
       }
     })
   }
 
-  caculateGameStatus = newSelectIds => {
-    const sum = newSelectIds.reduce((acc, cur) => {
-      return acc + this.numbers[cur]
-    }, 0)
-    if (newSelectIds.length < this.props.answerSize) {
-      return 'playing'
-    } else {
-      return sum === this.target ? 'won' : 'lost'
-    }
+  next = () => {
+    this.numbers = Array
+      .from({length: this.props.size})
+      .map(() => randomNumberBetween(...this.props.range))
+    this.target = randomSelect(this.numbers, this.props.answerSize).reduce((prev, cur) => prev + cur, 0)
+    this.setState(prevState => {
+      return {
+        selectIds: [],
+        score: prevState.score + 10
+      }
+    })
   }
 
   resetGame = () => {
@@ -112,14 +122,15 @@ class Game extends Component {
     this.setState({
       gameStatus: 'new',
       remainingSeconds: this.props.initialSeconds,
-      selectIds: []
+      selectIds: [],
+      score: 0
     }, () => {
       this.startGame()
     })
   }
 
   render() {
-    const { gameStatus, remainingSeconds } = this.state
+    const { gameStatus, remainingSeconds, score } = this.state
     return (
       <div className="game">
         <h3 className="help">
@@ -137,7 +148,7 @@ class Game extends Component {
               key={idx}
               id={idx}
               value={gameStatus === 'new' ? '?' : val}
-              clickable={this.isNumberAvailable(idx)}
+              active={this.isNumberAvailable(idx)}
               onClick={this.selectNumber}
             />
           )}
@@ -152,9 +163,10 @@ class Game extends Component {
             <div className="timer-value">{remainingSeconds}</div>
           }
           {
-            ['won', 'lost'].includes(gameStatus) &&
+            gameStatus === 'over' &&
             <button onClick={this.resetGame}>Play Again</button>
           }
+          <div className="score">得分: {score}</div>
         </div>
       </div>
     )

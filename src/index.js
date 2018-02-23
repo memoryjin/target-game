@@ -9,7 +9,7 @@ ReactDOM.render(
     size={6}
     answerSize={4}
     range={[2, 10]}
-    initialSeconds={10}
+    initialSeconds={60}
   />,
   document.getElementById('root')
 )

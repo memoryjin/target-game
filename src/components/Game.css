@@ -1,3 +1,7 @@
+button {
+  cursor: pointer;
+}
+
 .game {
   display: inline-flex;
   flex-direction: column;
@@ -43,7 +47,7 @@
   margin: 0 50px;
 }
 
-.timer-value {
+.timer-value,.score {
   color: darkgreen;
   font-size: 2rem;
 }
