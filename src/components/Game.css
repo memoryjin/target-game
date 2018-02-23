@@ -1,0 +1,49 @@
+.game {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.target {
+  border: thin solid #999;
+  width: 40%;
+  height: 75px;
+  font-size: 45px;
+  text-align: center;
+  display: inline-block;
+  background-color: #ccc;
+}
+
+.challenge-numbers {
+  width: 85%;
+  margin: 1rem auto;
+}
+
+.number {
+  border: thin solid lightgray;
+  background-color: #eee;
+  width: 38%;
+  text-align: center;
+  font-size: 36px;
+  border-radius: 5px;
+  margin: 1rem 5%;
+  display: inline-block;
+  cursor: pointer;
+}
+.number.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.footer {
+  display: flex;
+  width: 90%;
+  justify-content: space-between;
+  margin: 0 50px;
+}
+
+.timer-value {
+  color: darkgreen;
+  font-size: 2rem;
+}
