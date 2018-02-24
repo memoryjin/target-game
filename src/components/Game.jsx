@@ -3,27 +3,8 @@ import PropTypes from 'prop-types'
 
 import Number from './Number'
 import './Game.css'
+import { randomNumberBetween, randomSelect } from '../util'
 
-const randomNumberBetween = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-const randomSelect = (arr, size) => {
-  if (size > arr.length) {
-    throw new Error('size can\'t be larger than arr length')
-  }
-  const length = arr.length
-  const selectIdx = []
-  const result = []
-  while (selectIdx.length < size) {
-    const idx = randomNumberBetween(0, length - 1)
-    if (!selectIdx.includes(idx)) {
-      selectIdx.push(idx)
-      result.push(arr[idx])
-    }
-  }
-  return result
-}
 
 const colors = {
   new: 'lightblue',
@@ -32,18 +13,16 @@ const colors = {
 }
 
 class Game extends Component {
-  state = {
-    gameStatus: 'new', // new, playing, over
-    remainingSeconds: this.props.initialSeconds,
-    selectIds: [],
-    score: 0
+  constructor (props) {
+    super(props)
+    this.state = {
+      gameStatus: 'new', // new, playing, over
+      remainingSeconds: this.props.initialSeconds,
+      selectIds: [],
+      score: 0
+    }
+    this.refreshNumbersAndTarget()
   }
-
-  numbers = Array
-    .from({length: this.props.size})
-    .map(() => randomNumberBetween(...this.props.range))
-
-  target = randomSelect(this.numbers, this.props.answerSize).reduce((prev, cur) => prev + cur, 0)
 
   componentDidMount() {
     if (this.props.autoPlay) {
@@ -53,10 +32,18 @@ class Game extends Component {
 
   componentWillUnmount() {
     clearInterval(this.timer)
+    this.timer = null
   }
 
   isNumberAvailable = numberIdx => {
     return !this.state.selectIds.includes(numberIdx)
+  }
+
+  refreshNumbersAndTarget = () => {
+    this.numbers = Array
+      .from({length: this.props.size})
+      .map(() => randomNumberBetween(...this.props.range))
+    this.target = randomSelect(this.numbers, this.props.answerSize).reduce((prev, cur) => prev + cur, 0)
   }
 
   startGame = () => {
@@ -66,6 +53,7 @@ class Game extends Component {
           const newRemainingSeconds = prevState.remainingSeconds - 1
           if (newRemainingSeconds === 0) {
             clearInterval(this.timer)
+            this.timer = null
             return {gameStatus: 'over', remainingSeconds: 0}
           }
           return {remainingSeconds: newRemainingSeconds}
@@ -101,10 +89,7 @@ class Game extends Component {
   }
 
   next = () => {
-    this.numbers = Array
-      .from({length: this.props.size})
-      .map(() => randomNumberBetween(...this.props.range))
-    this.target = randomSelect(this.numbers, this.props.answerSize).reduce((prev, cur) => prev + cur, 0)
+    this.refreshNumbersAndTarget()
     this.setState(prevState => {
       return {
         selectIds: [],
@@ -114,10 +99,7 @@ class Game extends Component {
   }
 
   resetGame = () => {
-    this.numbers = Array
-      .from({length: this.props.size})
-      .map(() => randomNumberBetween(...this.props.range))
-    this.target = randomSelect(this.numbers, this.props.answerSize).reduce((prev, cur) => prev + cur, 0)
+    this.refreshNumbersAndTarget()
 
     this.setState({
       gameStatus: 'new',

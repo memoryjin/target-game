@@ -31,9 +31,4 @@ Number.propTypes = {
   onClick: PropTypes.func
 }
 
-Number.defaultProps = {
-  value: '?',
-  clickable: true
-}
-
 export default Number
